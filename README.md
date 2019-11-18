@@ -9,4 +9,4 @@ This includes:
 3) Gaussian Mixture Models 
 4) Hierarchical clustering
 
-<img src="som_imgs.png">
+<img src="umap.png">
