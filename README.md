@@ -10,3 +10,5 @@ This includes:
 4) Hierarchical clustering
 
 <img src="umap.png">
+
+<img src="som_imgs.png">
