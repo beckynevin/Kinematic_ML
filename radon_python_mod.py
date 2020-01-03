@@ -38,6 +38,7 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
     this function after expanding the grid.
     
     """
+    expand=0
     #It first converts the x and y coordinates into p and theta coordinates (circular)
     #p is rho, which is the distance of the point on the velocity field from the kinematic center
     p_list = np.linspace(-int(np.shape(vel_field)[0]/2)+5,int(np.shape(vel_field)[0]/2)-5, int(np.shape(vel_field)[0]/2)+1)#was 5
@@ -78,8 +79,7 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
     R_AB_e=[]
     b=24
     
-    plt.clf()
-    plt.imshow(vel_field, cmap='RdBu_r')
+    
     
     for i in range(len(p_list)):
         for j in range(len(theta_list)):
@@ -216,21 +216,7 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                 continue
                 
             # make these green if np.sum(np.abs(inside)) is less than some value
-            if np.sum(np.abs(inside)) < 200:
-             plt.plot(xs_bres, ys_bres, color='green', zorder=100)
-             #plt.scatter(xs_bres, ys_bres, marker='^', color='white')
-            else:
-             plt.plot(xs_bres, ys_bres, color='white')
-             #plt.scatter(xs_bres, ys_bres, marker='^', color='white')
-            #plt.annotate('velocity sum '+str(round(np.sum(np.abs(inside)),1)), xy=(0.1,0.3), xycoords='axes fraction')
-            #plt.annotate('p and theta '+str(round(p_list[i],1))+','+str(round(theta_list[j],1)), xy=(0.1,0.1), xycoords='axes fraction')
-            #plt.annotate('X Y '+str(X)+','+str(Y), xy=(0.1,0.2), xycoords='axes fraction')
             
-            #plt.xlim([0, np.shape(vel_field)[1]])
-    plt.xlim([0, np.shape(vel_field)[1]])
-    plt.ylim([np.shape(vel_field)[1],0])
-    #ax.set_aspect('equal')
-    plt.show()
     
    
     
@@ -243,10 +229,7 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
     R_AB_array = np.reshape(R_AB, (len(p_list),len(theta_list)))
     R_AB_array_e = np.reshape(R_AB_e, (len(p_list),len(theta_list)))
     
-    plt.clf()
-    plt.imshow(R_AB_array)
-    plt.colorbar()
-    plt.show()
+    
     
     
     
@@ -411,7 +394,10 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                 #
                 X = int(p_list[i]*math.cos(math.radians(theta_list[j]))+np.shape(vel_field)[0]/2+box_list[b][0])#-10+box_list[b][0])
                 Y = int(p_list[i]*math.sin(math.radians(theta_list[j]))+np.shape(vel_field)[1]/2+box_list[b][1])#-10+box_list[b][1])
-                
+                if vel_field[X,Y]==0.0:# Then it is off the field and you should continue
+                    R_AB.append(-1000)
+                    R_AB_e.append(-1000)
+                    continue
                 try:
                     #if this point exists in the velocity field then you can continue
                     test_value = vel_field[X,Y]
@@ -454,6 +440,9 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                 #of the line:
                 vel_append=[]
                 vel_e_append=[]
+                
+                
+                
                 for k in range(len(bres_list)):
                     if bres_list[k][0] < 0 or bres_list[k][1] < 0:
                         continue
@@ -461,7 +450,9 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                         continue
 
                     try:
-
+                        if vel_field[bres_list[k][1], bres_list[k][0]]==0.0:
+                            continue
+                        
                         vel_append.append(vel_field[bres_list[k][1], bres_list[k][0]])
                         vel_e_append.append(vel_field_e[bres_list[k][1], bres_list[k][0]])
                         #vel_new[bres_list[j][1], bres_list[j][0]] = vel_field[bres_list[j][1], bres_list[j][0]]
@@ -469,6 +460,8 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                         continue
                 
                 
+                
+              
                 
                 #clean it up, no masked values in here!
                 
@@ -479,7 +472,7 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                         continue
                     else:
                         vel_append_clean.append(vel_append[k])
-                        vel_append_clean_e.append(vel_append_e[k])
+                        vel_append_clean_e.append(vel_e_append[k])
                         
                         
                 if np.all(vel_append_clean)==0.0:
@@ -510,6 +503,11 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                     vel_append_clean_masked_e = ma.masked_where(np.isinf(vel_append_clean_e), vel_append_clean_e)
                     vel_append_clean_masked_e = ma.masked_where(vel_append_clean_masked==0.0, vel_append_clean_masked_e)
                     inside=vel_append_clean_masked-np.mean(vel_append_clean_masked)
+                    
+                    
+                    
+                    
+                    
                     R_AB.append(ma.sum(np.abs(inside)))
                     
                     # First calculate what the error is on the mean
@@ -531,7 +529,6 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
 
         R_AB_array = np.reshape(R_AB, (len(p_list),len(theta_list)))
         R_AB_array_e = np.reshape(R_AB_e, (len(p_list),len(theta_list)))
-
 
         
 
@@ -694,14 +691,13 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
         R_AB_list.append(R_AB_array)
         R_AB_list_e.append(R_AB_array_e)
         
+        
+        
     
       
     
-    print('A_list before masking', A_list)
     A_list = np.array(A_list)
     A_list = ma.masked_where(np.isnan(A_list), A_list)
-    print('this is the shape of A_list', np.shape(A_list))
-    print('this is the shape of box list', np.shape(box_list))
     #len(box_list)
     A_list_array = np.reshape(np.array(A_list), (7,7))
     A_e_list_array = np.reshape(np.array(A_e_list), (7,7))
@@ -828,7 +824,8 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
         expand=0
     # Go back and get the x and y coordinates of the minimum index and make
     # sure it is drawing lines in the right place
-    print('min box list', box_list, min_index, box_list[min_index])
+    print('min box list', min_index, box_list[min_index])
+    print('expand', expand)
     
     if plot=='yes':
     
@@ -936,6 +933,11 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                    vel_append_clean_masked_fake_e = ma.masked_where(vel_append_clean_masked_fake==0.0, vel_append_clean_masked_fake_e)
                    inside=vel_append_clean_masked_fake-np.mean(vel_append_clean_masked_fake)
                    R_AB_fake.append(ma.sum(np.abs(inside)))
+                   # Also calculate the error on this to plot the line a different color if percent error is really high
+                   error_mean = ma.mean(vel_append_clean_masked_fake)*np.sqrt(ma.sum((vel_append_clean_masked_fake_e/vel_append_clean_masked_fake)**2))
+                   
+                   R_AB_error = np.sqrt(3*error_mean**2+ma.sum(vel_append_clean_masked_fake_e)**2)
+                   
                else:
                    R_AB_fake.append(-1000)
                    continue
@@ -950,7 +952,10 @@ def radon(vel_field, vel_field_e, n_p, n_theta, r_e, factor, plot):
                
                # make these green if np.sum(np.abs(inside)) is less than some value
                if np.sum(np.abs(inside)) < np.mean(R_AB_list[min_index])/2:
-                plt.plot(xs_bres, ys_bres, color='green', zorder=100)
+                if abs(R_AB_error/np.sum(np.abs(inside))) > 1:
+                    plt.plot(xs_bres,ys_bres,color='yellow')
+                else:
+                    plt.plot(xs_bres, ys_bres, color='green', zorder=100)
                 #plt.scatter(xs_bres, ys_bres, marker='^', color='white')
                else:
                 plt.plot(xs_bres, ys_bres, color='white')
