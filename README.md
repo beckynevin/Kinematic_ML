@@ -14,8 +14,8 @@ There are many different notebooks that accompany this tutorial:
 - PCA_on_derotated_and_rescaled.ipynb - runs PCA on the derotated and rescaled images, output can be used for SFR_Mass_Cluster_IDs.ipynb
 - PCA_on_derotated.ipynb - runs PCA on the derotated images
 - Convolution_Autoencoder.ipynb - uses an autoencoder on derotated (slightly older version of data) maps to create an encoding that it then runs a UMAP on.
-- Clustering_ML_remove_rotation.ipynb - downloads kinematic maps, produces derotated versions
-- k-means_full_datacube.ipynb - runs k-means clustering on the fully derotated and rescaled datacubes
-<img src="umap.png">
+- Synthetic_data_RFR.ipynb - uses a technique from XXXX that uses a random forest to generate fake stellar velocity maps. From the differences between the real and fake maps, it then assigns clusters.
+- k-means_full_datacube.ipynb - grabs the derotated and rescaled datacubes and runs a full k-means clustering on them
+<img src="figures/umap.png">
 
-<img src="som_imgs.png">
+<img src="figures/som_imgs.png">
