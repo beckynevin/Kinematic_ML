@@ -10,6 +10,7 @@ This includes:
 4) Hierarchical clustering
 
 There are many different notebooks that accompany this tutorial:
+- Clustering_ML_remove_rotation.ipynb - Carries out a Marvin query, and contains code to save the MaNGA datacube and then produce a new datacube that is just the kinematic maps
 - SFR_Mass_Cluster_IDs.ipynb - feed it a list of clusters and MaNGA IDs and it will show you the cluster centers and distributions in mass/SFR space.
 - PCA_on_derotated_and_rescaled.ipynb - runs PCA on the derotated and rescaled images, output can be used for SFR_Mass_Cluster_IDs.ipynb
 - PCA_on_derotated.ipynb - runs PCA on the derotated images
